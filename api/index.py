@@ -82,7 +82,7 @@ async def gemini_completion(request: GeminiRequest):
         )
         
         # Log the response
-        logger.info(f"Generated response: {str(response)[:100]}...")
+        logger.info(f"Generated response: {str(response.text)[:500]}...")
         
         if not response.text:
             logger.error("Empty response received from Gemini API")
