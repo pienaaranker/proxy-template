@@ -4,11 +4,19 @@ from dotenv import load_dotenv
 import os
 import google.generativeai as genai
 from pydantic import BaseModel
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
 # Configure Gemini API
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    logger.error("GEMINI_API_KEY not found in environment variables")
+genai.configure(api_key=api_key)
 
 app = FastAPI()
 
@@ -35,7 +43,7 @@ async def root():
 async def protected_route():
     api_key = os.getenv("EXAMPLE_API_KEY")
     if not api_key:
-        raise HTTPException(status_code=500, message="API key not configured")
+        raise HTTPException(status_code=500, detail="API key not configured")
     return {"message": "This is a protected route"}
 
 @app.post("/api/gemini")
@@ -44,7 +52,11 @@ async def gemini_completion(request: GeminiRequest):
         # Get the API key from environment variables
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            raise HTTPException(status_code=500, detail="Gemini API key not configured")
+            logger.error("GEMINI_API_KEY not found in environment variables")
+            raise HTTPException(
+                status_code=500,
+                detail="Gemini API key not configured. Please check your environment variables."
+            )
 
         # Configure the model
         model = genai.GenerativeModel('gemini-2.0-flash')
@@ -63,4 +75,8 @@ async def gemini_completion(request: GeminiRequest):
             "status": "success"
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error in gemini_completion: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while processing your request: {str(e)}"
+        )
