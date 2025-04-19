@@ -54,34 +54,54 @@ async def protected_route():
 @app.post("/api/gemini")
 async def gemini_completion(request: GeminiRequest):
     try:
+        logger.info(f"Received request with prompt: {request.prompt[:100]}...")
+        
         # Get the API key from environment variables
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            logger.error("GEMINI_API_KEY not found in environment variables")
+            logger.error("Gemini API key not configured")
             raise HTTPException(
                 status_code=500,
-                detail="Gemini API key not configured. Please check your environment variables."
+                detail="Gemini API key not configured"
             )
 
         # Configure the model
         model = genai.GenerativeModel('gemini-2.0-flash')
         
+        logger.info(f"Generating content with temperature={request.temperature}, max_tokens={request.max_tokens}")
+        
         # Generate the response
-        response = model.generate_content(
-            request.prompt,
-            generation_config=genai.types.GenerationConfig(
-                temperature=request.temperature,
-                max_output_tokens=request.max_tokens,
-            )
+        generation_config = genai.types.GenerationConfig(
+            temperature=request.temperature,
+            max_output_tokens=request.max_tokens,
         )
         
+        response = model.generate_content(
+            request.prompt,
+            generation_config=generation_config
+        )
+        
+        # Log the response
+        logger.info(f"Generated response: {str(response)[:100]}...")
+        
+        if not response.text:
+            logger.error("Empty response received from Gemini API")
+            raise HTTPException(
+                status_code=500,
+                detail="Empty response received from Gemini API"
+            )
+            
+        # Return the response
         return {
             "response": response.text,
-            "status": "success"
+            "status": "success",
+            "prompt": request.prompt,
+            "model": "gemini-pro"
         }
+        
     except Exception as e:
         logger.error(f"Error in gemini_completion: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred while processing your request: {str(e)}"
+            detail=f"Error generating response: {str(e)}"
         )
