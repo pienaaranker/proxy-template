@@ -26,6 +26,8 @@ app.add_middleware(
     allow_origins=[
         "https://squabbl.vercel.app",
         "http://localhost:3000",  # For local development
+        "https://*.ngrok.io",     # For ngrok.io domains
+        "https://*.ngrok-free.app",  # For newer ngrok-free.app domains
     ],
     allow_credentials=True,
     allow_methods=["*"],
