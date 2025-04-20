@@ -66,7 +66,7 @@ async def gemini_completion(request: GeminiRequest):
             )
 
         # Configure the model
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel(os.getenv("GEMINI_MODEL"))
         
         logger.info(f"Generating content with temperature={request.temperature}, max_tokens={request.max_tokens}")
         
@@ -96,7 +96,7 @@ async def gemini_completion(request: GeminiRequest):
             "response": response.text,
             "status": "success",
             "prompt": request.prompt,
-            "model": "gemini-pro"
+            "model": os.getenv("GEMINI_MODEL")
         }
         
     except Exception as e:
