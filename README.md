@@ -54,7 +54,23 @@ Benefits of using this proxy:
    ```bash
    pip install -r requirements.txt
    ```
-4. Run the server:
+4. Configure allowed origins:
+   - Open `api/index.py`
+   - Locate the CORS middleware configuration
+   - Add your frontend domain to the `allow_origins` list:
+   ```python
+   app.add_middleware(
+       CORSMiddleware,
+       allow_origins=[
+           "https://your-frontend-domain.com",  # Add your domain here
+           "http://localhost:3000",  # For local development
+       ],
+       allow_credentials=True,
+       allow_methods=["*"],
+       allow_headers=["*"],
+   )
+   ```
+5. Run the server:
    ```bash
    uvicorn api.index:app --reload
    ```
@@ -81,11 +97,19 @@ This is a demonstration project. For production use, consider adding:
 - Monitoring and analytics
 - Additional security measures
 
+### CORS Security ⚠️
+The CORS configuration is crucial for security:
+- Only add domains you trust to `allow_origins`
+- Avoid using `["*"]` in production as it allows any site to access your API
+- Consider using environment variables for different origins in different environments
+- Remember to update the origins when deploying to production
+
 ## 📚 Learn More
 
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Google Gemini API Documentation](https://ai.google.dev/)
 - [Web Security Best Practices](https://owasp.org/www-project-top-ten/)
+- [CORS Security Guide](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
 
 ## 🤝 Contributing
 

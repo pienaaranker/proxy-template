@@ -24,7 +24,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://<your.web.page>",
+        "https://https://your-frontend-domain.com",
         "http://localhost:3000",  # For local development
         "https://*.ngrok.io",     # For ngrok.io domains
         "https://*.ngrok-free.app",  # For newer ngrok-free.app domains
